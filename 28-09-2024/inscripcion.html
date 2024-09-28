@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscripción</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Formulario de Inscripción</h2>
+        <form>
+            <div class="form-group">
+                <label for="tipo_documento">Tipo de Documento:</label>
+                <select class="form-control" id="tipo_documento">
+                    <option>Tarjeta de identidad</option>
+                    <option>Cédula de Ciudadania</option>
+                    <option>Pasaporte</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" class="form-control" id="nombre" placeholder="Ingrese su nombre">
+            </div>
+            <div class="form-group">
+                <label for="documento">Documento:</label>
+                <input type="text" class="form-control" id="documento" placeholder="Ingrese su documento">
+                <small id="documentoHelp" class="form-text text-muted">Debe tener 10 dígitos.</small>
+            </div>
+            <div class="form-group">
+                <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
+                <input type="date" class="form-control" id="fecha_nacimiento">
+            </div>
+            <div class="form-group">
+                <label for="edad">Edad:</label>
+                <input type="text" class="form-control" id="edad" readonly>
+            </div>
+        </form>
+    </div>
+
+    <!-- Componente de Acordeón -->
+    <div class="container mt-5">
+        <h2>Detalles del Evento</h2>
+        <div id="accordion">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Detalles del Evento
+                        </button>
+                    </h2>
+                </div>
+
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="evento">Evento:</label>
+                            <select class="form-control" id="evento">
+                                <option value="0">Seleccione un evento</option>
+                                <option value="100000|5000|10%">Curso HTML - $100,000 COP (Código de Promoción 10% Desc: #Cas231)</option>
+                                <option value="150000|7000|10%">Curso CSS - $150,000 COP (Código de Promoción 10% Desc: #TEsd3421)</option>
+                                <option value="200000|10000|10%">Curso JS - $200,000 COP (Código de Promoción 10% Desc: #JHYT674)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cantidad">Código Promocional:</label>
+                            <input type="text" class="form-control" id="cantidad" placeholder="Ingrese código promocional">
+                        </div>
+                        <div class="form-group">
+                            <label for="cantidad_personas">Cantidad de Personas:</label>
+                            <input type="number" class="form-control" id="cantidad_personas" placeholder="Ingrese la cantidad de personas">
+                        </div>
+                        <div class="form-group">
+                            <label for="total_pagar">Total a Pagar:</label>
+                            <input type="text" class="form-control" id="total_pagar" placeholder="Total a pagar" readonly>
+                        </div>
+                        <div class="form-group">
+                            <p id="mensaje_promocional" class="text-danger"></p>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Array de códigos promocionales
+        var promociones = ["#Cas231", "#TEsd3421", "#JHYT674", "#XYZ9876"];
+
+        // Validación del documento
+        document.getElementById('documento').addEventListener('input', function() {
+            var documento = this.value;
+            if (documento.length !== 10) {
+                this.setCustomValidity('El documento debe tener 10 dígitos.');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Cálculo de la edad
+        document.getElementById('fecha_nacimiento').addEventListener('change', function() {
+            var fechaNacimiento = new Date(this.value);
+            var hoy = new Date();
+            var edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+            var mes = hoy.getMonth() - fechaNacimiento.getMonth();
+            if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+                edad--;
+            }
+            document.getElementById('edad').value = edad;
+        });
+
+        // Cálculo del total a pagar
+        function calcularTotal() {
+            var evento = document.getElementById('evento').value;
+            var cantidadPersonas = document.getElementById('cantidad_personas').value;
+            var totalPagar = 0;
+            var promocion = 0;
+            var porcentajePromocion = 0;
+            var mensajePromocional = "";
+
+            if (evento !== "0") {
+                var partes = evento.split('|');
+                evento = partes[0];
+                promocion = partes[1];
+                porcentajePromocion = partes[2];
+            }
+
+            cantidadPersonas = parseFloat(cantidadPersonas);
+
+            if (isNaN(cantidadPersonas)) {
+                cantidadPersonas = 0;
+            }
+
+            var precioBase = parseFloat(evento) * cantidadPersonas;
+            var descuento = (promocion / 100) * precioBase;
+            totalPagar = precioBase - descuento;
+
+            totalPagar = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalPagar);
+
+            document.getElementById('total_pagar').value = totalPagar;
+
+            var codigoPromocional = document.getElementById('cantidad').value;
+            if (promociones.includes(codigoPromocional)) {
+                if (cantidadPersonas >= 4) {
+                    mensajePromocional = "Lo sentimos, no hay más códigos promocionales disponibles.";
+                    promociones = promociones.filter(code => code !== codigoPromocional);
+                } else {
+                    mensajePromocional = "";
+                }
+            } else {
+                mensajePromocional = "Código promocional no válido.";
+            }
+
+            document.getElementById('mensaje_promocional').innerHTML = mensajePromocional;
+        }
+
+        document.getElementById('evento').addEventListener('change', calcularTotal);
+        document.getElementById('cantidad_personas').addEventListener('input', calcularTotal);
+        document.getElementById('cantidad').addEventListener('input', calcularTotal);
+    </script>
+</body>
+</html>
