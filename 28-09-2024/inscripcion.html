@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscripción</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
     <div class="container mt-5">
         <h2>Formulario de Inscripción</h2>
@@ -46,7 +48,8 @@
             <div class="card">
                 <div class="card-header" id="headingOne">
                     <h2 class="mb-0">
-                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="true" aria-controls="collapseOne">
                             Detalles del Evento
                         </button>
                     </h2>
@@ -58,22 +61,38 @@
                             <label for="evento">Evento:</label>
                             <select class="form-control" id="evento">
                                 <option value="0">Seleccione un evento</option>
-                                <option value="100000|5000|10%">Curso HTML - $100,000 COP (Código de Promoción 10% Desc: #Cas231)</option>
-                                <option value="150000|7000|10%">Curso CSS - $150,000 COP (Código de Promoción 10% Desc: #TEsd3421)</option>
-                                <option value="200000|10000|10%">Curso JS - $200,000 COP (Código de Promoción 10% Desc: #JHYT674)</option>
+                                <option value="100000|5000|10%|#Cas231">Curso HTML - $100,000 COP (Código de Promoción
+                                    10% Desc: #Cas231)</option>
+                                <option value="150000|7000|10%|#TEsd3421">Curso CSS - $150,000 COP (Código de Promoción
+                                    10% Desc: #TEsd3421)</option>
+                                <option value="200000|10000|10%|#JHYT674">Curso JS - $200,000 COP (Código de Promoción
+                                    10% Desc: #JHYT674)</option>
                             </select>
                         </div>
                         <div class="form-group">
+                            <label for="precio_evento">Precio del Evento:</label>
+                            <input type="text" class="form-control" id="precio_evento" placeholder="Precio del evento"
+                                readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="codigo_promocional">Código Promocional:</label>
+                            <input type="text" class="form-control" id="codigo_promocional"
+                                placeholder="Código promocional" readonly>
+                        </div>
+                        <div class="form-group">
                             <label for="cantidad">Código Promocional:</label>
-                            <input type="text" class="form-control" id="cantidad" placeholder="Ingrese código promocional">
+                            <input type="text" class="form-control" id="cantidad"
+                                placeholder="Ingrese código promocional">
                         </div>
                         <div class="form-group">
                             <label for="cantidad_personas">Cantidad de Personas:</label>
-                            <input type="number" class="form-control" id="cantidad_personas" placeholder="Ingrese la cantidad de personas">
+                            <input type="number" class="form-control" id="cantidad_personas"
+                                placeholder="Ingrese la cantidad de personas">
                         </div>
                         <div class="form-group">
                             <label for="total_pagar">Total a Pagar:</label>
-                            <input type="text" class="form-control" id="total_pagar" placeholder="Total a pagar" readonly>
+                            <input type="text" class="form-control" id="total_pagar" placeholder="Total a pagar"
+                                readonly>
                         </div>
                         <div class="form-group">
                             <p id="mensaje_promocional" class="text-danger"></p>
@@ -94,7 +113,7 @@
         var promociones = ["#Cas231", "#TEsd3421", "#JHYT674", "#XYZ9876"];
 
         // Validación del documento
-        document.getElementById('documento').addEventListener('input', function() {
+        document.getElementById('documento').addEventListener('input', function () {
             var documento = this.value;
             if (documento.length !== 10) {
                 this.setCustomValidity('El documento debe tener 10 dígitos.');
@@ -104,7 +123,7 @@
         });
 
         // Cálculo de la edad
-        document.getElementById('fecha_nacimiento').addEventListener('change', function() {
+        document.getElementById('fecha_nacimiento').addEventListener('change', function () {
             var fechaNacimiento = new Date(this.value);
             var hoy = new Date();
             var edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
@@ -113,6 +132,22 @@
                 edad--;
             }
             document.getElementById('edad').value = edad;
+        });
+
+        // Actualizar precio del evento y código promocional al seleccionar un evento
+        document.getElementById('evento').addEventListener('change', function () {
+            var evento = this.value;
+            if (evento !== "0") {
+                var partes = evento.split('|');
+                var precioEvento = partes[0];
+                var codigoPromocional = partes[3];
+
+                document.getElementById('precio_evento').value = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(parseFloat(precioEvento));
+                document.getElementById('codigo_promocional').value = codigoPromocional;
+            } else {
+                document.getElementById('precio_evento').value = "";
+                document.getElementById('codigo_promocional').value = "";
+            }
         });
 
         // Cálculo del total a pagar
@@ -129,6 +164,7 @@
                 evento = partes[0];
                 promocion = partes[1];
                 porcentajePromocion = partes[2];
+                var codigoPromocional = partes[3];
             }
 
             cantidadPersonas = parseFloat(cantidadPersonas);
@@ -165,4 +201,3 @@
         document.getElementById('cantidad').addEventListener('input', calcularTotal);
     </script>
 </body>
-</html>
