@@ -11,7 +11,7 @@
 <body>
     <div class="container mt-5">
         <h2>Formulario de Inscripción</h2>
-        <form>
+        <form id="inscripcionForm">
             <div class="form-group">
                 <label for="tipo_documento">Tipo de Documento:</label>
                 <select class="form-control" id="tipo_documento">
@@ -61,12 +61,9 @@
                             <label for="evento">Evento:</label>
                             <select class="form-control" id="evento">
                                 <option value="0">Seleccione un evento</option>
-                                <option value="100000|5000|10%|#Cas231">Curso HTML - $100,000 COP (Código de Promoción
-                                    10% Desc: #Cas231)</option>
-                                <option value="150000|7000|10%|#TEsd3421">Curso CSS - $150,000 COP (Código de Promoción
-                                    10% Desc: #TEsd3421)</option>
-                                <option value="200000|10000|10%|#JHYT674">Curso JS - $200,000 COP (Código de Promoción
-                                    10% Desc: #JHYT674)</option>
+                                <option value="100000">Curso HTML - $100,000 COP</option>
+                                <option value="150000">Curso CSS - $150,000 COP</option>
+                                <option value="200000">Curso JS - $200,000 COP</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -75,14 +72,8 @@
                                 readonly>
                         </div>
                         <div class="form-group">
-                            <label for="codigo_promocional">Código Promocional:</label>
-                            <input type="text" class="form-control" id="codigo_promocional"
-                                placeholder="Código promocional" readonly>
-                        </div>
-                        <div class="form-group">
                             <label for="cantidad">Código Promocional:</label>
-                            <input type="text" class="form-control" id="cantidad"
-                                placeholder="Ingrese código promocional">
+                            <input type="text" class="form-control" id="cantidad" placeholder="Ingrese código promocional">
                         </div>
                         <div class="form-group">
                             <label for="cantidad_personas">Cantidad de Personas:</label>
@@ -91,13 +82,12 @@
                         </div>
                         <div class="form-group">
                             <label for="total_pagar">Total a Pagar:</label>
-                            <input type="text" class="form-control" id="total_pagar" placeholder="Total a pagar"
-                                readonly>
+                            <input type="text" class="form-control" id="total_pagar" placeholder="Total a pagar" readonly>
                         </div>
                         <div class="form-group">
                             <p id="mensaje_promocional" class="text-danger"></p>
                         </div>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" id="guardar" class="btn btn-primary">Guardar</button>
                     </div>
                 </div>
             </div>
@@ -134,19 +124,13 @@
             document.getElementById('edad').value = edad;
         });
 
-        // Actualizar precio del evento y código promocional al seleccionar un evento
+        // Actualizar precio del evento
         document.getElementById('evento').addEventListener('change', function () {
-            var evento = this.value;
-            if (evento !== "0") {
-                var partes = evento.split('|');
-                var precioEvento = partes[0];
-                var codigoPromocional = partes[3];
-
+            var precioEvento = this.value;
+            if (precioEvento !== "0") {
                 document.getElementById('precio_evento').value = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(parseFloat(precioEvento));
-                document.getElementById('codigo_promocional').value = codigoPromocional;
             } else {
                 document.getElementById('precio_evento').value = "";
-                document.getElementById('codigo_promocional').value = "";
             }
         });
 
@@ -154,50 +138,50 @@
         function calcularTotal() {
             var evento = document.getElementById('evento').value;
             var cantidadPersonas = document.getElementById('cantidad_personas').value;
+            var codigoPromocional = document.getElementById('cantidad').value;
             var totalPagar = 0;
-            var promocion = 0;
-            var porcentajePromocion = 0;
+            var descuento = 0;
             var mensajePromocional = "";
 
-            if (evento !== "0") {
-                var partes = evento.split('|');
-                evento = partes[0];
-                promocion = partes[1];
-                porcentajePromocion = partes[2];
-                var codigoPromocional = partes[3];
-            }
-
             cantidadPersonas = parseFloat(cantidadPersonas);
+            if (isNaN(cantidadPersonas)) cantidadPersonas = 0;
 
-            if (isNaN(cantidadPersonas)) {
-                cantidadPersonas = 0;
-            }
-
-            var precioBase = parseFloat(evento) * cantidadPersonas;
-            var descuento = (promocion / 100) * precioBase;
-            totalPagar = precioBase - descuento;
-
-            totalPagar = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalPagar);
-
-            document.getElementById('total_pagar').value = totalPagar;
-
-            var codigoPromocional = document.getElementById('cantidad').value;
+            // Verificar si el código promocional es válido
             if (promociones.includes(codigoPromocional)) {
-                if (cantidadPersonas >= 4) {
-                    mensajePromocional = "Lo sentimos, no hay más códigos promocionales disponibles.";
-                    promociones = promociones.filter(code => code !== codigoPromocional);
-                } else {
-                    mensajePromocional = "";
-                }
-            } else {
+                descuento = 0.1; // Descuento del 10%
+            } else if (codigoPromocional !== "") {
                 mensajePromocional = "Código promocional no válido.";
             }
 
+            var precioBase = parseFloat(evento) * cantidadPersonas;
+            totalPagar = precioBase - (precioBase * descuento);
+
+            document.getElementById('total_pagar').value = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalPagar);
             document.getElementById('mensaje_promocional').innerHTML = mensajePromocional;
+
+            // Eliminar el código del array si fue usado
+            if (promociones.includes(codigoPromocional)) {
+                promociones = promociones.filter(code => code !== codigoPromocional);
+            }
+
+            // Mensaje si ya no hay códigos disponibles
+            if (promociones.length === 0) {
+                mensajePromocional = "Lo sentimos, no hay más códigos promocionales disponibles.";
+                document.getElementById('mensaje_promocional').innerHTML = mensajePromocional;
+            }
         }
 
         document.getElementById('evento').addEventListener('change', calcularTotal);
         document.getElementById('cantidad_personas').addEventListener('input', calcularTotal);
         document.getElementById('cantidad').addEventListener('input', calcularTotal);
+
+        // Limpiar formulario al guardar
+        document.getElementById('guardar').addEventListener('click', function () {
+            document.getElementById('inscripcionForm').reset();
+            document.getElementById('total_pagar').value = "";
+            document.getElementById('mensaje_promocional').innerHTML = "";
+        });
     </script>
 </body>
+
+</html>
