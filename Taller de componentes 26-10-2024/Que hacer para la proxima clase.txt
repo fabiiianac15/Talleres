@@ -1,0 +1,5 @@
+como constriur una caja de texto y lograr que haga parte de un formulario, si al construir el componente se podria agregar al formulario?
+
+construir un componente tipo password
+
+como integrar un componente con tailwind
